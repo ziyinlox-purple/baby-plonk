@@ -68,23 +68,17 @@ This will take you through the workflow of setup, proof generation, and verifica
 
 The browser will popup and launch jupyter lab. You can start to explore!
 
-#### 3.3 Run with Graphical Interface
-We've added a graphical interface for easier interaction instead of compiling the code. You can just input some values and generate constraints. This is a simplification of the circuit language description, which can help you better understand the relationship between constraint generation and circuit input.
-
-3.3.1 Run the interface
-   `python3 main_ui.py`
-
-#### 3.4 Run with Web Interface
-The repository also includes a browser-based UI for working directly with arithmeticized selector rows. Each row is entered as:
+#### 3.3 Run with Graphical Web Interface
+We've added a graphical interface for easier interaction instead of compiling the code. You can just input some values and generate constraints. This is a simplification of the circuit language description, which can help you better understand the relationship between constraint generation and circuit input. This interface includes a browser-based UI for working directly with arithmeticized selector rows. Each row is entered as:
 
 `q_L q_R q_M q_C q_O`
 
 The UI turns each selector row into a visualized constraint equation and also shows the raw JSON output. The equation rendering uses a bundled local MathJax asset, so it does not depend on an external CDN at runtime.
 
-3.4.1 Start the web server
+3.3.1 Start the web server
    `python3 web_ui.py`
 
-3.4.2 Open the app
+3.3.2 Open the app
    Visit `http://127.0.0.1:8000` in your browser.
 
 
