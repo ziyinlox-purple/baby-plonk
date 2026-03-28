@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Baby PlonK Studio</title>
+    <link rel="stylesheet" href="/static/app.css" />
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        },
+        svg: {
+          fontCache: "global",
+        },
+      };
+    </script>
+    <script defer src="/static/vendor/tex-svg.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <div class="hero-topbar">
+            <p class="eyebrow">Baby PlonK Studio</p>
+            <button class="lang-toggle" id="langToggle" type="button" aria-label="Language toggle">
+              <span class="lang-option" data-lang-option="zh">中文</span>
+              <span class="lang-separator">/</span>
+              <span class="lang-option" data-lang-option="en">EN</span>
+            </button>
+          </div>
+          <h1>
+            <span data-i18n="hero_title_prefix">Directly enter</span>
+            <span class="math-label">q<sub>L</sub></span>,
+            <span class="math-label">q<sub>R</sub></span>,
+            <span class="math-label">q<sub>M</sub></span>,
+            <span class="math-label">q<sub>C</sub></span>,
+            <span class="math-label">q<sub>O</sub></span>
+            <span data-i18n="hero_title_suffix">and visualize each constraint.</span>
+          </h1>
+          <p class="hero-text" data-i18n="hero_text">
+            This page is focused on selector-first input. Each row is treated as one selector-form
+            constraint, and the UI turns it into an equation view immediately. It is meant to
+            visualize selector rows, not source-language compilation.
+          </p>
+        </div>
+        <div class="hero-card">
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="heroConstraintCount">0</span>
+            <span class="hero-stat-label" data-i18n="stat_constraints">Constraints</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="heroGroupOrder">0</span>
+            <span class="hero-stat-label" data-i18n="stat_group_order">Group Order</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="heroPublicCount">0</span>
+            <span class="hero-stat-label" data-i18n="stat_binary_rows">Binary Rows</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="panel editor-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker" data-i18n="input_kicker">Program Input</p>
+              <h2 data-i18n="input_title">Selector-first editor</h2>
+            </div>
+            <div class="badge-row">
+              <span class="badge" data-i18n="badge_five_values">5 values per row</span>
+              <span class="badge" data-i18n="badge_realtime">Realtime preview</span>
+            </div>
+          </div>
+
+          <div class="sample-row">
+            <button class="ghost-button" data-sample="binary" data-i18n="sample_binary">Binary Sample</button>
+            <button class="ghost-button" data-sample="mixed" data-i18n="sample_mixed">Mixed Sample</button>
+            <button class="ghost-button" id="addRowButton" data-i18n="add_row">Add Row</button>
+            <button class="ghost-button" id="clearSelectors" data-i18n="clear">Clear</button>
+          </div>
+
+          <div class="grid-header">
+            <div class="field-label-row">
+              <label class="field-label" data-i18n="selector_rows">Selector rows</label>
+              <span
+                class="info-badge"
+                tabindex="0"
+                aria-label="Selector rows help"
+                data-i18n-tooltip="selector_rows_help"
+              >?</span>
+            </div>
+            <p class="grid-note" data-i18n="grid_note_prefix">
+              Each row maps directly to
+            </p>
+          </div>
+
+          <div class="selector-grid-shell">
+            <table class="selector-grid-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>
+                    <span class="header-with-help">
+                      <span class="math-label">q<sub>L</sub></span>
+                      <span class="info-badge info-badge-inline info-badge-corner" tabindex="0" data-i18n-tooltip="selector_q_l">?</span>
+                    </span>
+                  </th>
+                  <th>
+                    <span class="header-with-help">
+                      <span class="math-label">q<sub>R</sub></span>
+                      <span class="info-badge info-badge-inline info-badge-corner" tabindex="0" data-i18n-tooltip="selector_q_r">?</span>
+                    </span>
+                  </th>
+                  <th>
+                    <span class="header-with-help">
+                      <span class="math-label">q<sub>M</sub></span>
+                      <span class="info-badge info-badge-inline info-badge-corner" tabindex="0" data-i18n-tooltip="selector_q_m">?</span>
+                    </span>
+                  </th>
+                  <th>
+                    <span class="header-with-help">
+                      <span class="math-label">q<sub>C</sub></span>
+                      <span class="info-badge info-badge-inline info-badge-corner" tabindex="0" data-i18n-tooltip="selector_q_c">?</span>
+                    </span>
+                  </th>
+                  <th>
+                    <span class="header-with-help">
+                      <span class="math-label">q<sub>O</sub></span>
+                      <span class="info-badge info-badge-inline info-badge-corner" tabindex="0" data-i18n-tooltip="selector_q_o">?</span>
+                    </span>
+                  </th>
+                  <th data-i18n="preview">Preview</th>
+                  <th data-i18n="action">Action</th>
+                </tr>
+              </thead>
+              <tbody id="selectorEditorBody"></tbody>
+            </table>
+          </div>
+
+          <details class="raw-input-panel">
+            <summary data-i18n="raw_selector_text">Raw selector text</summary>
+            <textarea
+              id="programInput"
+              spellcheck="false"
+              placeholder="Example:
+1 1 0 1 1
+0 0 1 0 1"
+            ></textarea>
+          </details>
+
+          <div class="form-row">
+            <details class="advanced-panel">
+              <summary data-i18n="advanced_options">Advanced options</summary>
+              <div class="advanced-content">
+                <div class="field-group small-field">
+                  <div class="field-label-row">
+                    <label class="field-label" for="groupOrderInput" data-i18n="group_order">Group order</label>
+                    <span
+                      class="info-badge"
+                      tabindex="0"
+                      aria-label="Group order help"
+                      data-tooltip="Represents the size of the evaluation domain for the circuit or polynomial. Usually group_order must be greater than or equal to the number of constraint rows."
+                    >?</span>
+                  </div>
+                  <input id="groupOrderInput" type="number" min="1" placeholder="Auto" />
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <div class="editor-footer">
+            <button class="primary-button" id="generateButton" data-i18n="visualize_constraints">Visualize Constraints</button>
+            <button class="secondary-button" id="copyProgramButton" data-i18n="copy_selectors">Copy Selectors</button>
+            <p class="status-line" id="statusLine">Ready.</p>
+          </div>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker" data-i18n="results_kicker">Results</p>
+              <h2 data-i18n="results_title">Visualized constraints</h2>
+            </div>
+            <div class="tabs" role="tablist">
+              <button class="tab is-active" data-tab="table" data-i18n="selector_table">Selector Table</button>
+              <button class="tab" data-tab="cards" data-i18n="equation_cards">Equation Cards</button>
+              <button class="tab" data-tab="json" data-i18n="raw_json">Raw JSON</button>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <article class="metric-card">
+              <span class="metric-value" id="metricRows">0</span>
+              <span class="metric-label" data-i18n="rows">Rows</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-value" id="metricWidth">0</span>
+              <span class="metric-label" data-i18n="stat_binary_rows">Binary Rows</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-value" id="metricState">Idle</span>
+              <span class="metric-label" data-i18n="state">State</span>
+            </article>
+          </div>
+
+          <div class="teaching-panel teaching-panel-right">
+            <div class="teaching-block">
+              <p class="teaching-title" data-i18n="equation_meaning_title">How to read the equation</p>
+              <ul class="teaching-list">
+                <li data-i18n="equation_help_1">Each row is converted into one gate-style equation of the form “expression = 0”.</li>
+                <li data-i18n="equation_help_2">The left, right, multiplication, constant, and output terms are assembled directly from the selector values.</li>
+                <li data-i18n="equation_help_3">This lets you see how one selector row defines the constraint enforced by the gate.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tab-panel is-active" data-panel="table">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th><span class="math-label">q<sub>L</sub></span></th>
+                    <th><span class="math-label">q<sub>R</sub></span></th>
+                    <th><span class="math-label">q<sub>M</sub></span></th>
+                    <th><span class="math-label">q<sub>C</sub></span></th>
+                    <th><span class="math-label">q<sub>O</sub></span></th>
+                    <th data-i18n="equation">Equation</th>
+                  </tr>
+                </thead>
+                <tbody id="selectorTableBody">
+                  <tr>
+                    <td colspan="7" class="empty-state" data-i18n="empty_state">Run the visualizer to inspect selector rows.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="tab-panel" data-panel="cards">
+            <div class="card-grid" id="constraintCards">
+              <article class="empty-card" data-i18n="no_constraints">No constraints generated yet.</article>
+            </div>
+          </div>
+
+          <div class="tab-panel" data-panel="json">
+            <pre id="jsonOutput">{"summary": null, "selectors": []}</pre>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div class="floating-tooltip" id="floatingTooltip" hidden></div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
